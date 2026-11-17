@@ -149,3 +149,23 @@ input[type=number], input[type=text], input[type=search], input[type=email], inp
 .info-name-wrap{justify-content:flex-start!important;gap:6px!important;}
 .info-line .info-name-wrap .drag-handle{margin:0 0 0 2px;}
 @media(max-width:600px){.drag-handle{width:30px;height:32px;flex-basis:30px;font-size:22px;}}
+
+
+/* Live drag destination preview */
+.drop-before,.drop-after{position:relative!important;}
+.drop-before::before,.drop-after::after{
+ content:"";position:absolute;left:3px;right:3px;height:4px;border-radius:5px;
+ background:#2476e8;box-shadow:0 0 0 2px rgba(36,118,232,.16),0 2px 8px rgba(36,118,232,.28);
+ z-index:20;pointer-events:none;
+}
+.drop-before::before{top:-2px;}
+.drop-after::after{bottom:-2px;}
+.drag-preview{
+ position:fixed;left:0;top:0;z-index:99999;pointer-events:none;
+ max-width:min(78vw,320px);padding:9px 13px;border-radius:10px;
+ background:#173f79;color:#fff;font-size:13px;font-weight:700;
+ box-shadow:0 7px 22px rgba(15,45,85,.28);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+ border:1px solid rgba(255,255,255,.28);
+}
+.sorting-items [data-drag-id]{transition:background .08s ease,outline-color .08s ease;}
+.sorting-items .drop-before,.sorting-items .drop-after{background:#edf5ff!important;}
