@@ -123,3 +123,13 @@ input[type=number], input[type=text], input[type=search], input[type=email], inp
  .inventory-name-scroll{max-width:100%;touch-action:pan-x;}
  .qty-input{width:68px;font-size:16px!important;}
 }
+
+/* Shared item ordering controls */
+.inventory-name-wrap{display:flex;align-items:center;gap:7px;min-width:0;}
+.inventory-name-scroll{flex:1;min-width:0;}
+.item-order-controls{display:inline-flex;align-items:center;gap:3px;flex:0 0 auto;}
+.order-move{width:25px;height:25px;padding:0;border:1px solid #dce7f5;border-radius:6px;background:#f5f8fd;color:#376aaE;font-size:14px;line-height:1;display:inline-grid;place-items:center;}
+.order-move:active{background:#e5efff;transform:scale(.96);}
+.info-name-wrap{display:flex;align-items:center;justify-content:space-between;gap:5px;min-width:0;}
+.info-name-wrap strong{min-width:0;overflow:hidden;text-overflow:ellipsis;}
+@media(max-width:600px){.order-move{width:28px;height:28px}.inventory-name-wrap{gap:5px}}

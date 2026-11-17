@@ -23,23 +23,34 @@ function render(){
   $('lowItems').innerHTML=low.length?low.map(i=>`<div class="log"><div><strong>${esc(i.name)}</strong><small>${Number(i.qty)} ${esc(i.unit)}</small></div><span class="pill ${status(i)}">${status(i)==='out'?'품절':'부족'}</span></div>`).join(''):'<div class="empty">재고 부족 품목이 없어.</div>';
   const q=$('search').value.toLowerCase(),cat=$('category').value,st=$('stock').value;
   const list=db.items.filter(i=>(!q||[i.name,i.maker,i.location].join(' ').toLowerCase().includes(q))&&(!cat||i.category===cat)&&(!st||status(i)===st));
-  $('rows').innerHTML=list.map(i=>`<tr><td class="inventory-name-cell"><div class="inventory-name-scroll" title="${esc(i.name)}"><b>${esc(i.name)}</b></div></td><td>${esc(i.category)}</td><td><div class="qty-edit"><input class="qty-input" type="number" min="0" step="any" value="${Number(i.qty)}" data-qty="${i.id}" aria-label="${esc(i.name)} 현재 수량"><span>${esc(i.unit)}</span></div></td><td>${Number(i.min)} ${esc(i.unit)}</td><td><span class="pill ${status(i)}">${status(i)==='ok'?'충분':status(i)==='low'?'부족':'품절'}</span></td></tr>`).join('');
+  $('rows').innerHTML=list.map(i=>`<tr><td class="inventory-name-cell"><div class="inventory-name-wrap"><div class="inventory-name-scroll" title="${esc(i.name)}"><b>${esc(i.name)}</b></div><div class="item-order-controls"><button type="button" class="order-move" data-move="${i.id}" data-direction="-1" aria-label="${esc(i.name)} 위로 이동" title="위로">↑</button><button type="button" class="order-move" data-move="${i.id}" data-direction="1" aria-label="${esc(i.name)} 아래로 이동" title="아래로">↓</button></div></div></td><td>${esc(i.category)}</td><td><div class="qty-edit"><input class="qty-input" type="number" min="0" step="any" value="${Number(i.qty)}" data-qty="${i.id}" aria-label="${esc(i.name)} 현재 수량"><span>${esc(i.unit)}</span></div></td><td>${Number(i.min)} ${esc(i.unit)}</td><td><span class="pill ${status(i)}">${status(i)==='ok'?'충분':status(i)==='low'?'부족':'품절'}</span></td></tr>`).join('');
   $('invEmpty').classList.toggle('hidden',list.length>0);
   const of=$('orderFilter').value;
   const orders=db.orders.filter(o=>of==='all'||!o.done);
   $('orderList').innerHTML=orders.map(o=>`<div class="order"><div><strong>${esc(o.name)} ${o.auto?'<span class="pill">자동 요청</span>':''}</strong><small>${Number(o.qty)||1} ${esc(o.unit||'')} ${o.note?'· '+esc(o.note):''}</small></div><div class="order-actions"><button class="rowbtn complete-order" data-complete-order="${o.id}">주문요청 완료</button></div></div>`).join('')||'<div class="empty">현재 주문 요청이 없어.</div>';
   const iq=($('infoSearch')?.value||'').toLowerCase();
   const infoItems=db.items.filter(i=>!iq||[i.name,i.category,i.maker,i.catalog].join(' ').toLowerCase().includes(iq));
-  $('infoList').innerHTML=infoItems.length?`<div class="info-table"><div class="info-line info-heading"><span>품목명</span><span>분류</span><span>현재 수량</span><span>최소 재고</span><span>제조사</span><span>제품 번호</span><span>보관 위치</span><span>보관 온도</span><span>메모</span><span>상태</span><span>관리</span></div>${infoItems.map(i=>`<div class="info-row"><div class="info-line"><strong>${esc(i.name)}</strong><span>${esc(i.category||'-')}</span><span>${Number(i.qty)} ${esc(i.unit)}</span><span>${Number(i.min)} ${esc(i.unit)}</span><span>${esc(i.maker||'-')}</span><span>${esc(i.catalog||'-')}</span><span>${esc(i.location||'-')}</span><span>${esc(i.storageTemp||'-')}</span><span class="info-memo">${esc(i.memo||'-')}</span><span><i class="pill ${status(i)}">${status(i)==='ok'?'충분':status(i)==='low'?'부족':'품절'}</i></span><button class="rowbtn" data-edit="${i.id}">수정</button></div></div>`).join('')}</div>`:'<div class="empty">등록된 품목이 없어.</div>' 
+  $('infoList').innerHTML=infoItems.length?`<div class="info-table"><div class="info-line info-heading"><span>품목명</span><span>분류</span><span>현재 수량</span><span>최소 재고</span><span>제조사</span><span>제품 번호</span><span>보관 위치</span><span>보관 온도</span><span>메모</span><span>상태</span><span>관리</span></div>${infoItems.map(i=>`<div class="info-row"><div class="info-line"><div class="info-name-wrap"><strong>${esc(i.name)}</strong><div class="item-order-controls"><button type="button" class="order-move" data-move="${i.id}" data-direction="-1" aria-label="${esc(i.name)} 위로 이동" title="위로">↑</button><button type="button" class="order-move" data-move="${i.id}" data-direction="1" aria-label="${esc(i.name)} 아래로 이동" title="아래로">↓</button></div></div><span>${esc(i.category||'-')}</span><span>${Number(i.qty)} ${esc(i.unit)}</span><span>${Number(i.min)} ${esc(i.unit)}</span><span>${esc(i.maker||'-')}</span><span>${esc(i.catalog||'-')}</span><span>${esc(i.location||'-')}</span><span>${esc(i.storageTemp||'-')}</span><span class="info-memo">${esc(i.memo||'-')}</span><span><i class="pill ${status(i)}">${status(i)==='ok'?'충분':status(i)==='low'?'부족':'품절'}</i></span><button class="rowbtn" data-edit="${i.id}">수정</button></div></div>`).join('')}</div>`:'<div class="empty">등록된 품목이 없어.</div>' 
 }
 document.addEventListener('click',e=>{
  const p=e.target.closest('[data-page]');if(p){e.preventDefault();page(p.dataset.page)}
  const a=e.target.closest('[data-action]');if(a){if(a.dataset.action==='item')openItem();if(a.dataset.action==='order')$('orderDialog').showModal()}
  if(e.target.matches('[data-close]'))e.target.closest('dialog').close();
  const t=e.target;
+ if(t.dataset.move){moveItem(t.dataset.move,Number(t.dataset.direction));return;}
  if(t.dataset.edit)openItem(t.dataset.edit);
  if(t.dataset.completeOrder){db.orders=db.orders.filter(o=>o.id!==t.dataset.completeOrder);save();toast('주문 요청을 목록에서 제거했어.')}
 });
+
+function moveItem(id,direction){
+ const from=db.items.findIndex(item=>item.id===id);
+ const to=from+direction;
+ if(from<0||to<0||to>=db.items.length)return;
+ const [item]=db.items.splice(from,1);
+ db.items.splice(to,0,item);
+ save();
+ toast('품목 순서를 변경했어.');
+}
 function openItem(id){
  const i=db.items.find(x=>x.id===id);$('itemForm').reset();$('itemId').value=i?.id||'';$('itemTitle').textContent=i?'품목 정보 수정':'품목 추가';
  $('itemName').value=i?.name||'';$('itemCat').value=i?.category||'시약';$('itemQty').value=i?.qty??0;$('itemUnit').value=i?.unit||'';$('itemMin').value=i?.min??0;$('itemMaker').value=i?.maker||'';$('itemCatalog').value=i?.catalog||'';$('itemLoc').value=i?.location||'';$('itemStorageTemp').value=i?.storageTemp||'';$('itemMemo').value=i?.memo||'';$('itemDialog').showModal()
