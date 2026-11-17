@@ -5,26 +5,85 @@ function save(){localStorage.setItem(KEY,JSON.stringify(db));render()}
 const $=id=>document.getElementById(id), esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 function toast(s){const t=$('toast');t.textContent=s;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2200)}
 function page(p){document.querySelectorAll('.page').forEach(x=>x.classList.toggle('active',x.id===p));document.querySelectorAll('[data-page]').forEach(x=>x.classList.toggle('active',x.dataset.page===p));window.scrollTo(0,0)}
-document.addEventListener('click',e=>{const p=e.target.closest('[data-page]');if(p){e.preventDefault();page(p.dataset.page)}const a=e.target.closest('[data-action]');if(a){if(a.dataset.action==='item')openItem();if(a.dataset.action==='order')$('orderDialog').showModal();if(a.dataset.action==='location')$('locationDialog').showModal()}if(e.target.matches('[data-close]'))e.target.closest('dialog').close()});
 function status(i){return Number(i.qty)<=0?'out':Number(i.qty)<=Number(i.min)?'low':'ok'}
-function render(){ $('total').textContent=db.items.length;$('low').textContent=db.items.filter(i=>status(i)==='low').length;$('out').textContent=db.items.filter(i=>status(i)==='out').length;$('pending').textContent=db.orders.filter(o=>!o.done).length;
- const low=db.items.filter(i=>status(i)!=='ok');$('lowItems').innerHTML=low.length?low.map(i=>`<div class="log"><div><strong>${esc(i.name)}</strong><small>${esc(i.location||'위치 미지정')} · ${i.qty} ${esc(i.unit)}</small></div><span class="pill ${status(i)}">${status(i)==='out'?'품절':'재고 부족'}</span></div>`).join(''):'<div class="empty">재고 부족 품목이 없어.</div>';
- $('recent').innerHTML=db.history.slice().reverse().slice(0,5).map(h=>`<div class="log"><div><strong>${esc(h.name)}</strong><small>${esc(h.date)} · ${esc(h.actor||'기록자 미입력')}</small></div><span class="${h.delta>=0?'positive':'negative'}">${h.delta>0?'+':''}${h.delta} ${esc(h.unit)}</span></div>`).join('')||'<div class="empty">아직 기록이 없어.</div>';
- const q=$('search').value.toLowerCase(),cat=$('category').value,st=$('stock').value;const list=db.items.filter(i=>(!q||[i.name,i.maker,i.location].join(' ').toLowerCase().includes(q))&&(!cat||i.category===cat)&&(!st||status(i)===st));$('rows').innerHTML=list.map(i=>`<tr><td><b>${esc(i.name)}</b><br><small>${esc(i.maker||'')}</small></td><td>${esc(i.category)}</td><td>${i.qty} ${esc(i.unit)} <span class="pill ${status(i)}">${status(i)==='ok'?'정상':status(i)==='low'?'부족':'품절'}</span></td><td>${i.min} ${esc(i.unit)}</td><td>${esc(i.location||'-')}</td><td>${esc(i.expiry||'-')}</td><td><button class="rowbtn" data-move="${i.id}">입출고</button><button class="rowbtn" data-edit="${i.id}">수정</button><button class="rowbtn" data-delete="${i.id}">삭제</button></td></tr>`).join('');$('invEmpty').classList.toggle('hidden',list.length>0);
- const hq=$('historySearch').value.toLowerCase();const hs=db.history.slice().reverse().filter(h=>!hq||[h.name,h.actor,h.note].join(' ').toLowerCase().includes(hq));$('historyList').innerHTML=hs.map(h=>`<div class="log"><div><strong>${esc(h.name)} · ${esc(h.type)}</strong><small>${esc(h.date)} · ${esc(h.actor||'기록자 미입력')} ${h.note?'· '+esc(h.note):''}</small></div><b class="${h.delta>=0?'positive':'negative'}">${h.delta>0?'+':''}${h.delta} ${esc(h.unit)}</b></div>`).join('')||'<div class="empty">표시할 이력이 없어.</div>';
- const of=$('orderFilter').value;const os=db.orders.filter(o=>of==='all'||(of==='done'?o.done:!o.done));$('orderList').innerHTML=os.map(o=>`<div class="order"><div><strong>${esc(o.name)} <span class="pill">${o.done?'완료':'진행 중'}</span></strong><small>${o.qty} ${esc(o.unit)} · 요청자 ${esc(o.requester||'-')} · ${o.price?Number(o.price).toLocaleString()+'원':''} ${esc(o.note||'')}</small></div><div><button class="rowbtn" data-toggle-order="${o.id}">${o.done?'되돌리기':'완료 처리'}</button><button class="rowbtn" data-del-order="${o.id}">삭제</button></div></div>`).join('')||'<div class="empty">발주 항목이 없어.</div>';
- $('locationList').innerHTML=db.locations.map(l=>`<div class="location"><div class="locicon">⌖</div><strong>${esc(l.name)}</strong><small>${esc(l.type)} · ${esc(l.detail||'세부 위치 없음')}</small><button class="rowbtn" data-del-location="${l.id}">삭제</button></div>`).join('')||'<div class="empty">등록된 보관 위치가 없어.</div>';
- $('itemLoc').innerHTML='<option value="">미지정</option>'+db.locations.map(l=>`<option>${esc(l.name)}</option>`).join('');}
-function openItem(id){const i=db.items.find(x=>x.id===id);$('itemForm').reset();$('itemId').value=i?.id||'';$('itemTitle').textContent=i?'품목 수정':'품목 추가';$('itemName').value=i?.name||'';$('itemCat').value=i?.category||'시약';$('itemQty').value=i?.qty??0;$('itemUnit').value=i?.unit||'';$('itemMin').value=i?.min??0;$('itemMaker').value=i?.maker||'';$('itemCatalog').value=i?.catalog||'';$('itemLoc').value=i?.location||'';$('itemExpiry').value=i?.expiry||'';$('itemMemo').value=i?.memo||'';$('itemDialog').showModal()}
-$('itemForm').onsubmit=e=>{e.preventDefault();const id=$('itemId').value,old=db.items.find(x=>x.id===id);const item={id:id||crypto.randomUUID(),name:$('itemName').value.trim(),category:$('itemCat').value,qty:Number($('itemQty').value),unit:$('itemUnit').value.trim(),min:Number($('itemMin').value),maker:$('itemMaker').value,catalog:$('itemCatalog').value,location:$('itemLoc').value,expiry:$('itemExpiry').value,memo:$('itemMemo').value};if(old){Object.assign(old,item)}else{db.items.push(item);db.history.push({id:crypto.randomUUID(),name:item.name,type:'최초 등록',delta:0,unit:item.unit,date:new Date().toLocaleString('ko-KR'),actor:'직접 등록',note:''})}$('itemDialog').close();save();toast('품목을 저장했어.')};
-document.addEventListener('click',e=>{const t=e.target;if(t.dataset.edit)openItem(t.dataset.edit);if(t.dataset.delete){if(confirm('이 품목을 삭제할까?')){db.items=db.items.filter(i=>i.id!==t.dataset.delete);save();toast('삭제했어.')}}if(t.dataset.move){const i=db.items.find(x=>x.id===t.dataset.move);$('stockForm').reset();$('stockId').value=i.id;$('stockInfo').textContent=`${i.name} · 현재 ${i.qty} ${i.unit}`;$('stockDialog').showModal()}if(t.dataset.toggleOrder){const o=db.orders.find(x=>x.id===t.dataset.toggleOrder);o.done=!o.done;save()}if(t.dataset.delOrder){db.orders=db.orders.filter(o=>o.id!==t.dataset.delOrder);save()}if(t.dataset.delLocation){db.locations=db.locations.filter(l=>l.id!==t.dataset.delLocation);save()}});
-$('stockForm').onsubmit=e=>{e.preventDefault();const i=db.items.find(x=>x.id===$('stockId').value),type=$('stockType').value,n=Number($('stockQty').value);let delta=type==='in'?n:type==='out'?-n:n-i.qty;if(i.qty+delta<0){alert('현재 재고보다 많이 출고할 수 없어.');return}i.qty+=delta;db.history.push({id:crypto.randomUUID(),name:i.name,type:type==='in'?'입고':type==='out'?'사용/출고':'수량 조정',delta,unit:i.unit,date:new Date().toLocaleString('ko-KR'),actor:$('stockActor').value,note:$('stockNote').value});$('stockDialog').close();save();toast('입출고 기록을 저장했어.')};
-$('orderForm').onsubmit=e=>{e.preventDefault();db.orders.push({id:crypto.randomUUID(),name:$('orderName').value,qty:Number($('orderQty').value),unit:$('orderUnit').value,price:$('orderPrice').value,requester:$('orderRequester').value,note:$('orderNote').value,done:false});$('orderDialog').close();e.target.reset();save();toast('발주 항목을 추가했어.')};
-$('locationForm').onsubmit=e=>{e.preventDefault();db.locations.push({id:crypto.randomUUID(),name:$('locName').value,type:$('locType').value,detail:$('locDetail').value});$('locationDialog').close();e.target.reset();save();toast('보관 위치를 저장했어.')};
-['search','category','stock','historySearch','orderFilter'].forEach(id=>$(id).addEventListener('input',render));
+function ensureAutoOrder(i){
+  const st=status(i);
+  if(st==='ok') return;
+  const exists=db.orders.some(o=>o.itemId===i.id&&!o.done);
+  if(!exists) db.orders.push({id:crypto.randomUUID(),itemId:i.id,name:i.name,qty:1,unit:i.unit,price:'',requester:'',note:'재고 기준 이하로 자동 생성',done:false,auto:true});
+}
+function syncAutoOrders(){db.items.forEach(ensureAutoOrder)}
+function render(){
+  syncAutoOrders();
+  $('total').textContent=db.items.length;
+  $('low').textContent=db.items.filter(i=>status(i)==='low').length;
+  $('out').textContent=db.items.filter(i=>status(i)==='out').length;
+  $('pending').textContent=db.orders.filter(o=>!o.done).length;
+  const low=db.items.filter(i=>status(i)!=='ok');
+  $('lowItems').innerHTML=low.length?low.map(i=>`<div class="log"><div><strong>${esc(i.name)}</strong><small>${Number(i.qty)} ${esc(i.unit)}</small></div><span class="pill ${status(i)}">${status(i)==='out'?'품절':'부족'}</span></div>`).join(''):'<div class="empty">재고 부족 품목이 없어.</div>';
+  const q=$('search').value.toLowerCase(),cat=$('category').value,st=$('stock').value;
+  const list=db.items.filter(i=>(!q||[i.name,i.maker,i.location].join(' ').toLowerCase().includes(q))&&(!cat||i.category===cat)&&(!st||status(i)===st));
+  $('rows').innerHTML=list.map(i=>`<tr><td><b>${esc(i.name)}</b></td><td>${esc(i.category)}</td><td><div class="qty-edit"><input class="qty-input" type="number" min="0" step="any" value="${Number(i.qty)}" data-qty="${i.id}" aria-label="${esc(i.name)} 현재 수량"><span>${esc(i.unit)}</span></div></td><td>${Number(i.min)} ${esc(i.unit)}</td><td><span class="pill ${status(i)}">${status(i)==='ok'?'충분':status(i)==='low'?'부족':'품절'}</span></td></tr>`).join('');
+  $('invEmpty').classList.toggle('hidden',list.length>0);
+  const of=$('orderFilter').value;
+  const orders=db.orders.filter(o=>of==='all'||!o.done);
+  $('orderList').innerHTML=orders.map(o=>`<div class="order"><div><strong>${esc(o.name)} ${o.auto?'<span class="pill">자동 요청</span>':''}</strong><small>${Number(o.qty)||1} ${esc(o.unit||'')} ${o.note?'· '+esc(o.note):''}</small></div><div class="order-actions"><button class="rowbtn complete-order" data-complete-order="${o.id}">주문요청 완료</button></div></div>`).join('')||'<div class="empty">현재 주문 요청이 없어.</div>';
+  const iq=($('infoSearch')?.value||'').toLowerCase();
+  const infoItems=db.items.filter(i=>!iq||[i.name,i.category,i.maker,i.catalog].join(' ').toLowerCase().includes(iq));
+  $('infoList').innerHTML=infoItems.map(i=>`<article class="info-card"><div class="info-card-head"><div><span class="eyebrow">${esc(i.category||'기타')}</span><h2>${esc(i.name)}</h2></div><span class="pill ${status(i)}">${status(i)==='ok'?'충분':status(i)==='low'?'부족':'품절'}</span></div><dl><div><dt>현재 수량</dt><dd>${Number(i.qty)} ${esc(i.unit)}</dd></div><div><dt>최소 재고</dt><dd>${Number(i.min)} ${esc(i.unit)}</dd></div><div><dt>제조사</dt><dd>${esc(i.maker||'-')}</dd></div><div><dt>제품 번호</dt><dd>${esc(i.catalog||'-')}</dd></div><div><dt>보관 위치</dt><dd>${esc(i.location||'-')}</dd></div><div><dt>유효기간</dt><dd>${esc(i.expiry||'-')}</dd></div><div class="full"><dt>메모</dt><dd>${esc(i.memo||'-')}</dd></div></dl><button class="rowbtn" data-edit="${i.id}">정보 수정</button></article>`).join('')||'<div class="empty">등록된 품목이 없어.</div>';
+}
+document.addEventListener('click',e=>{
+ const p=e.target.closest('[data-page]');if(p){e.preventDefault();page(p.dataset.page)}
+ const a=e.target.closest('[data-action]');if(a){if(a.dataset.action==='item')openItem();if(a.dataset.action==='order')$('orderDialog').showModal()}
+ if(e.target.matches('[data-close]'))e.target.closest('dialog').close();
+ const t=e.target;
+ if(t.dataset.edit)openItem(t.dataset.edit);
+ if(t.dataset.completeOrder){db.orders=db.orders.filter(o=>o.id!==t.dataset.completeOrder);save();toast('주문 요청을 목록에서 제거했어.')}
+});
+function openItem(id){
+ const i=db.items.find(x=>x.id===id);$('itemForm').reset();$('itemId').value=i?.id||'';$('itemTitle').textContent=i?'품목 정보 수정':'품목 추가';
+ $('itemName').value=i?.name||'';$('itemCat').value=i?.category||'시약';$('itemQty').value=i?.qty??0;$('itemUnit').value=i?.unit||'';$('itemMin').value=i?.min??0;$('itemMaker').value=i?.maker||'';$('itemCatalog').value=i?.catalog||'';$('itemLoc').value=i?.location||'';$('itemExpiry').value=i?.expiry||'';$('itemMemo').value=i?.memo||'';$('itemDialog').showModal()
+}
+$('itemForm').onsubmit=e=>{
+ e.preventDefault();const id=$('itemId').value,old=db.items.find(x=>x.id===id);
+ const item={id:id||crypto.randomUUID(),name:$('itemName').value.trim(),category:$('itemCat').value,qty:Number($('itemQty').value),unit:$('itemUnit').value.trim(),min:Number($('itemMin').value),maker:$('itemMaker').value,catalog:$('itemCatalog').value,location:$('itemLoc').value,expiry:$('itemExpiry').value,memo:$('itemMemo').value};
+ if(old)Object.assign(old,item);else db.items.push(item);
+ ensureAutoOrder(item);$('itemDialog').close();save();toast('품목을 저장했어.')
+};
+document.addEventListener('change',e=>{
+ const t=e.target;
+ if(t.matches('[data-qty]')){
+  const i=db.items.find(x=>x.id===t.dataset.qty);if(!i)return;
+  const n=Number(t.value);if(!Number.isFinite(n)||n<0){t.value=i.qty;toast('수량은 0 이상으로 입력해 줘.');return}
+  const before=status(i);i.qty=n;ensureAutoOrder(i);save();
+  const after=status(i);
+  if(after!=='ok'&&before==='ok')toast(after==='out'?'품절되어 주문 요청에 추가했어.':'재고 부족으로 주문 요청에 추가했어.');
+  else toast('재고 수량을 변경했어.')
+ }
+});
+$('orderForm').onsubmit=e=>{
+ e.preventDefault();db.orders.push({id:crypto.randomUUID(),name:$('orderName').value,qty:Number($('orderQty').value),unit:$('orderUnit').value,price:$('orderPrice').value,requester:$('orderRequester').value,note:$('orderNote').value,done:false,auto:false});
+ $('orderDialog').close();e.target.reset();save();toast('주문 요청을 추가했어.')
+};
+['search','category','stock','orderFilter','infoSearch'].forEach(id=>$(id)?.addEventListener('input',render));
 function download(name,text,type='text/plain'){const a=document.createElement('a'),u=URL.createObjectURL(new Blob([text],{type}));a.href=u;a.download=name;a.click();URL.revokeObjectURL(u)}
-$('backupBtn').onclick=()=>download('LapStock_backup_'+new Date().toISOString().slice(0,10)+'.json',JSON.stringify(db,null,2),'application/json');
+$('backupBtn').onclick=()=>download('LabStock_backup_'+new Date().toISOString().slice(0,10)+'.json',JSON.stringify(db,null,2),'application/json');
 function csv(rows,name){const data=rows.map(r=>r.map(v=>'"'+String(v??'').replace(/"/g,'""')+'"').join(',')).join('\n');download(name,'\ufeff'+data,'text/csv;charset=utf-8')}
-$('csvBtn').onclick=()=>csv([['품목명','분류','수량','단위','최소재고','제조사','제품번호','보관위치','유효기간','메모'],...db.items.map(i=>[i.name,i.category,i.qty,i.unit,i.min,i.maker,i.catalog,i.location,i.expiry,i.memo])],'LapStock_inventory.csv');$('historyCsv').onclick=()=>csv([['품목명','유형','변경량','단위','날짜','기록자','메모'],...db.history.map(h=>[h.name,h.type,h.delta,h.unit,h.date,h.actor,h.note])],'LapStock_history.csv');
-$('importBtn').onclick=()=>$('fileInput').click();$('fileInput').onchange=async e=>{const f=e.target.files[0];if(!f)return;try{let rows;if(f.name.toLowerCase().endsWith('.csv')){const txt=await f.text();rows=txt.replace(/^\uFEFF/,'').split(/\r?\n/).map(x=>x.split(','))}else{if(!window.XLSX)throw Error('엑셀 라이브러리를 불러오지 못했어.');const wb=XLSX.read(await f.arrayBuffer(),{type:'array'});rows=XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],{header:1,defval:''})}const headers=rows.shift().map(x=>String(x).trim().toLowerCase());const find=names=>headers.findIndex(h=>names.some(n=>h.includes(n)));const ix={name:find(['품목명','품목','시약명','제품명','name']),cat:find(['분류','category']),qty:find(['수량','재고','quantity']),unit:find(['단위','unit']),min:find(['최소 재고','최소재고','min']),maker:find(['제조사','제조원','maker']),catalog:find(['제품 번호','제품번호','cat. no','catalog']),loc:find(['보관 위치','보관위치','위치','location']),expiry:find(['유효기간','사용기한','expiry']),memo:find(['메모','비고','memo'])};if(ix.name<0)throw Error('품목명 열을 찾지 못했어. 첫 행에 품목명이라는 제목을 넣어줘.');let count=0;rows.forEach(r=>{if(!r[ix.name])return;db.items.push({id:crypto.randomUUID(),name:String(r[ix.name]),category:ix.cat>=0&&r[ix.cat]?String(r[ix.cat]):'시약',qty:Number(r[ix.qty]||0),unit:ix.unit>=0?String(r[ix.unit]||'개'):'개',min:Number(ix.min>=0?r[ix.min]||0:0),maker:ix.maker>=0?String(r[ix.maker]||''):'',catalog:ix.catalog>=0?String(r[ix.catalog]||''):'',location:ix.loc>=0?String(r[ix.loc]||''):'',expiry:ix.expiry>=0?String(r[ix.expiry]||''):'',memo:ix.memo>=0?String(r[ix.memo]||''):''});count++});save();toast(`${count}개 품목을 가져왔어.`)}catch(err){alert(err.message)}e.target.value=''};
-render();if('serviceWorker'in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));
+$('csvBtn').onclick=()=>csv([['품목명','분류','현재수량','단위','최소재고','제조사','제품번호','보관위치','유효기간','메모'],...db.items.map(i=>[i.name,i.category,i.qty,i.unit,i.min,i.maker,i.catalog,i.location,i.expiry,i.memo])],'LabStock_inventory.csv');
+$('importBtn').onclick=()=>$('fileInput').click();
+$('fileInput').onchange=async e=>{
+ const f=e.target.files[0];if(!f)return;
+ try{
+  let rows;
+  if(f.name.toLowerCase().endsWith('.csv')){const txt=await f.text();rows=txt.replace(/^\uFEFF/,'').split(/\r?\n/).map(x=>x.split(','))}
+  else{if(!window.XLSX)throw Error('엑셀 라이브러리를 불러오지 못했어.');const wb=XLSX.read(await f.arrayBuffer(),{type:'array'});rows=XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],{header:1,defval:''})}
+  const headers=rows.shift().map(x=>String(x).trim().toLowerCase()),find=names=>headers.findIndex(h=>names.some(n=>h.includes(n)));
+  const ix={name:find(['품목명','품목','시약명','제품명','name']),cat:find(['분류','category']),qty:find(['수량','재고','quantity']),unit:find(['단위','unit']),min:find(['최소 재고','최소재고','min']),maker:find(['제조사','제조원','maker']),catalog:find(['제품 번호','제품번호','cat. no','catalog']),loc:find(['보관 위치','보관위치','위치','location']),expiry:find(['유효기간','사용기한','expiry']),memo:find(['메모','비고','memo'])};
+  if(ix.name<0)throw Error('품목명 열을 찾지 못했어. 첫 행에 품목명이라는 제목을 넣어줘.');
+  let count=0;
+  rows.forEach(r=>{const name=String(r[ix.name]??'').trim();if(!name)return;const item={id:crypto.randomUUID(),name,category:ix.cat>=0?(r[ix.cat]||'기타'):'기타',qty:Number(ix.qty>=0?r[ix.qty]:0)||0,unit:ix.unit>=0?(r[ix.unit]||'개'):'개',min:Number(ix.min>=0?r[ix.min]:0)||0,maker:ix.maker>=0?r[ix.maker]||'':'',catalog:ix.catalog>=0?r[ix.catalog]||'':'',location:ix.loc>=0?r[ix.loc]||'':'',expiry:ix.expiry>=0?r[ix.expiry]||'':'',memo:ix.memo>=0?r[ix.memo]||'':''};db.items.push(item);ensureAutoOrder(item);count++});
+  save();toast(`${count}개 품목을 가져왔어.`)
+ }catch(err){alert(err.message||'파일을 읽지 못했어.')}finally{e.target.value=''}
+};
+if('serviceWorker'in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));
+render();
