@@ -1,1 +1,20 @@
-{"name":"LapStock 개인 실험실 재고 관리","short_name":"LapStock","start_url":"./","display":"standalone","background_color":"#f5f7f5","theme_color":"#163f38","icons":[{"src":"./icon-192.png","sizes":"192x192","type":"image/png"},{"src":"./icon-512.png","sizes":"512x512","type":"image/png"}]}
+{
+  "name": "LapStock 개인 실험실 재고 관리",
+  "short_name": "LapStock",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#F4F7FC",
+  "theme_color": "#123B78",
+  "icons": [
+    {
+      "src": "./icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "./icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
