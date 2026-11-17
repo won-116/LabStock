@@ -1,4 +1,4 @@
-LapStock 개인용 재고 관리 - Render 배포 안내
+LabStock 개인용 재고 관리 - Render 배포 안내
 
 구성 파일
 - index.html : 화면
@@ -7,7 +7,7 @@ LapStock 개인용 재고 관리 - Render 배포 안내
 - manifest.json, sw.js, icon-192.png, icon-512.png : 모바일 홈 화면 및 캐시
 
 Render 배포
-1. GitHub에서 새 Public 또는 Private 저장소를 만듭니다. 예: LapStock
+1. GitHub에서 새 Public 또는 Private 저장소를 만듭니다. 예: LabStock
 2. 이 폴더 안의 파일 7개를 저장소 최상위(root)에 업로드합니다.
 3. Render에 로그인하고 New + -> Static Site를 선택합니다.
 4. 방금 만든 GitHub 저장소를 연결합니다.

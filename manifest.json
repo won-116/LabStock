@@ -1,6 +1,6 @@
 {
-  "name": "LapStock 개인 실험실 재고 관리",
-  "short_name": "LapStock",
+  "name": "LabStock 개인 실험실 재고 관리",
+  "short_name": "LabStock",
   "start_url": "./",
   "display": "standalone",
   "background_color": "#F4F7FC",
