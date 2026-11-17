@@ -144,7 +144,7 @@ input[type=number], input[type=text], input[type=search], input[type=email], inp
 .drag-handle:active{background:#e5efff;color:#245fa9;cursor:grabbing;}
 .sorting-items,.sorting-items *{cursor:grabbing!important;}
 .sorting-items{user-select:none;-webkit-user-select:none;}
-.dragging-item{opacity:.42!important;background:#eaf2ff!important;outline:2px dashed #6d9bd4;outline-offset:-2px;}
+.dragging-item{opacity:1!important;background:inherit!important;outline:0!important;}
 .inventory-name-wrap{gap:5px;}
 .info-name-wrap{justify-content:flex-start!important;gap:6px!important;}
 .info-line .info-name-wrap .drag-handle{margin:0 0 0 2px;}
@@ -160,15 +160,8 @@ input[type=number], input[type=text], input[type=search], input[type=email], inp
 }
 .drop-before::before{top:-2px;}
 .drop-after::after{bottom:-2px;}
-.drag-preview{
- position:fixed;left:0;top:0;z-index:99999;pointer-events:none;
- max-width:min(78vw,320px);padding:9px 13px;border-radius:10px;
- background:#173f79;color:#fff;font-size:13px;font-weight:700;
- box-shadow:0 7px 22px rgba(15,45,85,.28);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
- border:1px solid rgba(255,255,255,.28);
-}
 .sorting-items [data-drag-id]{transition:background .08s ease,outline-color .08s ease;}
-.sorting-items .drop-before,.sorting-items .drop-after{background:#edf5ff!important;}
+
 
 
 /* Compact inventory layout: show all five columns on a phone */

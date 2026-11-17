@@ -1,4 +1,4 @@
-const CACHE = 'labstock-inventory-v14';
+const CACHE = 'labstock-inventory-v15';
 const CORE_FILES = ['./', './index.html', './styles.css', './app.js', './manifest.json'];
 
 self.addEventListener('install', event => {

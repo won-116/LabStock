@@ -42,10 +42,9 @@ document.addEventListener('click',e=>{
 });
 
 // Long-press drag sorting with live destination preview, shared by both lists.
-let dragState=null, dragTimer=null, dragStarted=false, dropTarget=null, dropAfter=false, dragPreview=null;
+let dragState=null, dragTimer=null, dragStarted=false, dropTarget=null, dropAfter=false;
 function clearDropPreview(){
  document.querySelectorAll('.drop-before,.drop-after').forEach(el=>el.classList.remove('drop-before','drop-after'));
- if(dragPreview){dragPreview.remove();dragPreview=null;}
  dropTarget=null;dropAfter=false;
 }
 function updateDropPreview(e){
@@ -57,11 +56,6 @@ function updateDropPreview(e){
   dropAfter=e.clientY>rect.top+rect.height/2;
   target.classList.add(dropAfter?'drop-after':'drop-before');
   dropTarget=target;
- }
- if(dragPreview){
-  dragPreview.style.transform=`translate3d(${e.clientX+14}px,${e.clientY+16}px,0)`;
-  const name=db.items.find(x=>x.id===dragState?.id)?.name||'품목';
-  dragPreview.textContent=dropTarget?`${name} → ${dropTarget.querySelector('strong,b')?.textContent||'이 위치'} ${dropAfter?'아래':'위'}`:`${name} · 이동할 위치를 선택`;
  }
 }
 document.addEventListener('pointerdown',e=>{
@@ -77,8 +71,6 @@ document.addEventListener('pointerdown',e=>{
   document.body.classList.add('sorting-items');
   const row=document.querySelector(`[data-drag-id="${CSS.escape(id)}"]`);
   row?.classList.add('dragging-item');
-  dragPreview=document.createElement('div');dragPreview.className='drag-preview';dragPreview.textContent=(db.items.find(x=>x.id===id)?.name||'품목')+' · 이동할 위치를 선택';
-  document.body.appendChild(dragPreview);
   updateDropPreview({clientX:dragState.x,clientY:dragState.y});
   if(navigator.vibrate)navigator.vibrate(25);
  },220);
