@@ -31,3 +31,39 @@
 .order-actions{display:flex;align-items:center}
 .complete-order{background:#eaf2ff;border-radius:8px;padding:8px 11px;color:#245fa9;font-weight:700}
 @media(max-width:850px){.info-grid{grid-template-columns:1fr}}
+
+/* Mobile navigation: lifted and enlarged touch targets */
+@media(max-width:850px){
+  main{padding-bottom:124px}
+  .mobile{
+    bottom:calc(12px + env(safe-area-inset-bottom));
+    left:12px;
+    right:12px;
+    height:76px;
+    padding:6px 8px;
+    border:1px solid #d8e5f5;
+    border-radius:18px;
+    box-shadow:0 8px 28px rgba(25,68,125,.16);
+    background:rgba(255,255,255,.97);
+    backdrop-filter:blur(12px);
+    -webkit-backdrop-filter:blur(12px);
+    align-items:stretch;
+  }
+  .mobile button{
+    flex:1;
+    min-width:0;
+    min-height:60px;
+    border-radius:12px;
+    padding:7px 4px;
+    gap:5px;
+    font-size:21px;
+    touch-action:manipulation;
+  }
+  .mobile button small{font-size:11px;font-weight:600}
+  .mobile button.active{background:#eaf2ff;color:#245fa9}
+}
+@media(max-width:380px){
+  .mobile{left:8px;right:8px;bottom:calc(9px + env(safe-area-inset-bottom));height:72px}
+  .mobile button{font-size:19px}
+  .mobile button small{font-size:10px}
+}
