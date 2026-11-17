@@ -133,3 +133,19 @@ input[type=number], input[type=text], input[type=search], input[type=email], inp
 .info-name-wrap{display:flex;align-items:center;justify-content:space-between;gap:5px;min-width:0;}
 .info-name-wrap strong{min-width:0;overflow:hidden;text-overflow:ellipsis;}
 @media(max-width:600px){.order-move{width:28px;height:28px}.inventory-name-wrap{gap:5px}}
+
+/* Long-press drag handles for synchronized item ordering */
+.drag-handle{
+  flex:0 0 28px;width:28px;height:30px;padding:0;margin:0 2px 0 0;
+  display:inline-grid;place-items:center;border:1px solid #dbe6f4;border-radius:7px;
+  background:#f4f8ff;color:#6482a8;font-size:21px;line-height:1;font-weight:700;
+  cursor:grab;touch-action:none;user-select:none;-webkit-user-select:none;
+}
+.drag-handle:active{background:#e5efff;color:#245fa9;cursor:grabbing;}
+.sorting-items,.sorting-items *{cursor:grabbing!important;}
+.sorting-items{user-select:none;-webkit-user-select:none;}
+.dragging-item{opacity:.42!important;background:#eaf2ff!important;outline:2px dashed #6d9bd4;outline-offset:-2px;}
+.inventory-name-wrap{gap:5px;}
+.info-name-wrap{justify-content:flex-start!important;gap:6px!important;}
+.info-line .info-name-wrap .drag-handle{margin:0 0 0 2px;}
+@media(max-width:600px){.drag-handle{width:30px;height:32px;flex-basis:30px;font-size:22px;}}
