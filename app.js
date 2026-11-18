@@ -5,7 +5,7 @@ function save(){localStorage.setItem(KEY,JSON.stringify(db));render()}
 const $=id=>document.getElementById(id), esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 function toast(s){const t=$('toast');t.textContent=s;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2200)}
 function page(p){document.querySelectorAll('.page').forEach(x=>x.classList.toggle('active',x.id===p));document.querySelectorAll('[data-page]').forEach(x=>x.classList.toggle('active',x.dataset.page===p));window.scrollTo(0,0)}
-function status(i){return Number(i.qty)<=0?'out':Number(i.qty)<=Number(i.min)?'low':'ok'}
+function status(i){return Number(i.qty)<=0?'out':Number(i.qty)<Number(i.min)?'low':'ok'}
 function ensureAutoOrder(i){
   const st=status(i);
   if(st==='ok') return;
