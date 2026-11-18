@@ -103,23 +103,23 @@ input[type=number], input[type=text], input[type=search], input[type=email], inp
 
 /* Inventory list: bring item name, category and quantity closer together.
    Long names scroll within their own cell without moving the whole table. */
-.inventory-table{table-layout:fixed;min-width:560px;width:100%;}
+.inventory-table{table-layout:fixed;min-width:545px;width:100%;}
 .inventory-table th,.inventory-table td{padding:12px 9px;}
-.inventory-table th:nth-child(1),.inventory-table td:nth-child(1){width:175px;padding-left:13px;padding-right:7px;}
-.inventory-table th:nth-child(2),.inventory-table td:nth-child(2){width:78px;padding-left:7px;padding-right:7px;}
-.inventory-table th:nth-child(3),.inventory-table td:nth-child(3){width:125px;min-width:0;padding-left:7px;padding-right:7px;}
-.inventory-table th:nth-child(4),.inventory-table td:nth-child(4){width:105px;padding-left:8px;padding-right:8px;}
-.inventory-table th:nth-child(5),.inventory-table td:nth-child(5){width:78px;padding-left:8px;padding-right:10px;}
+.inventory-table th:nth-child(1),.inventory-table td:nth-child(1){width:150px;padding-left:11px;padding-right:5px;}
+.inventory-table th:nth-child(2),.inventory-table td:nth-child(2){width:125px;padding-left:5px;padding-right:5px;}
+.inventory-table th:nth-child(3),.inventory-table td:nth-child(3){width:95px;min-width:0;padding-left:5px;padding-right:5px;}
+.inventory-table th:nth-child(4),.inventory-table td:nth-child(4){width:80px;padding-left:5px;padding-right:5px;}
+.inventory-table th:nth-child(5),.inventory-table td:nth-child(5){width:70px;padding-left:5px;padding-right:6px;}
 .inventory-name-scroll{max-width:100%;overflow-x:auto;overflow-y:hidden;white-space:nowrap;-webkit-overflow-scrolling:touch;overscroll-behavior-x:contain;scrollbar-width:thin;scrollbar-color:#c7d8ee transparent;padding:2px 0;}
 .inventory-name-scroll b{display:inline-block;max-width:none;white-space:nowrap;font-size:13px;color:#19395f;}
 .qty-edit{gap:5px;min-width:0;white-space:nowrap;}
 .qty-input{width:76px;min-width:0;padding:8px 7px;}
 @media(max-width:600px){
- .inventory-table{min-width:520px;}
+ .inventory-table{min-width:545px;}
  .inventory-table th,.inventory-table td{padding-top:12px;padding-bottom:12px;}
- .inventory-table th:nth-child(1),.inventory-table td:nth-child(1){width:150px;}
- .inventory-table th:nth-child(2),.inventory-table td:nth-child(2){width:68px;}
- .inventory-table th:nth-child(3),.inventory-table td:nth-child(3){width:112px;}
+ .inventory-table th:nth-child(1),.inventory-table td:nth-child(1){width:135px;}
+ .inventory-table th:nth-child(2),.inventory-table td:nth-child(2){width:110px;}
+ .inventory-table th:nth-child(3),.inventory-table td:nth-child(3){width:90px;}
  .inventory-name-scroll{max-width:100%;touch-action:pan-x;}
  .qty-input{width:68px;font-size:16px!important;}
 }
