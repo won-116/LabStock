@@ -1,6 +1,6 @@
 const KEY='lapstock_personal_v1';
 let db=load();
-function load(){try{const d=JSON.parse(localStorage.getItem(KEY))||{items:[],history:[],orders:[],locations:[]};d.items=(d.items||[]).map(i=>({...i,updatedAt:i.updatedAt||i.createdAt||null}));d.orders=(d.orders||[]).map(o=>({...o,id:o.id||crypto.randomUUID(),createdAt:o.createdAt||null}));return d}catch{return{items:[],history:[],orders:[],locations:[]}}}
+function load(){try{const d=JSON.parse(localStorage.getItem(KEY))||{items:[],history:[],orders:[],locations:[]};d.items=(d.items||[]).map(i=>({...i,updatedAt:i.updatedAt||i.createdAt||null,autoOrderDismissed:!!i.autoOrderDismissed}));d.orders=(d.orders||[]).map(o=>({...o,id:o.id||crypto.randomUUID(),createdAt:o.createdAt||null}));return d}catch{return{items:[],history:[],orders:[],locations:[]}}}
 function save(){localStorage.setItem(KEY,JSON.stringify(db));render()}
 const $=id=>document.getElementById(id), dateLabel=v=>v?new Date(v).toLocaleDateString('ko-KR',{year:'numeric',month:'2-digit',day:'2-digit'}):'-', esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 function toast(s){const t=$('toast');t.textContent=s;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2200)}
@@ -8,11 +8,16 @@ function page(p){document.querySelectorAll('.page').forEach(x=>x.classList.toggl
 function status(i){return Number(i.qty)<=0?'out':Number(i.qty)<Number(i.min)?'low':'ok'}
 function ensureAutoOrder(i){
   const st=status(i);
-  if(st==='ok') return;
+  if(st==='ok'){i.autoOrderDismissed=false;return;}
+  if(i.autoOrderDismissed) return;
   const exists=db.orders.some(o=>o.itemId===i.id&&!o.done);
-  if(!exists) db.orders.push({id:crypto.randomUUID(),itemId:i.id,name:i.name,qty:1,unit:i.unit,price:'',requester:'',note:'재고 기준 이하로 자동 생성',done:false,auto:true,createdAt:new Date().toISOString()});
+  if(!exists) db.orders.push({id:crypto.randomUUID(),itemId:i.id,name:i.name,qty:1,unit:i.unit,price:'',requester:'',note:'재고 기준 미만으로 자동 생성',done:false,auto:true,createdAt:new Date().toISOString()});
 }
-function syncAutoOrders(){db.items.forEach(ensureAutoOrder)}
+function syncAutoOrders(){
+  let changed=false;
+  db.items.forEach(i=>{const wasDismissed=i.autoOrderDismissed;ensureAutoOrder(i);if(wasDismissed!==i.autoOrderDismissed)changed=true;});
+  if(changed)localStorage.setItem(KEY,JSON.stringify(db));
+}
 function render(){
   syncAutoOrders();
   $('total').textContent=db.items.length;
@@ -38,7 +43,7 @@ document.addEventListener('click',e=>{
  if(e.target.matches('[data-close]'))e.target.closest('dialog').close();
  const t=e.target;
  if(t.dataset.edit)openItem(t.dataset.edit);
- const complete=t.closest('[data-complete-order]');if(complete){const orderId=complete.dataset.completeOrder;db.orders=db.orders.filter(o=>String(o.id)!==String(orderId));save();toast('주문 요청을 목록에서 제거했어.')}
+ const complete=t.closest('[data-complete-order]');if(complete){const orderId=complete.dataset.completeOrder;const target=db.orders.find(o=>String(o.id)===String(orderId));if(target?.auto&&target.itemId){const item=db.items.find(i=>String(i.id)===String(target.itemId));if(item)item.autoOrderDismissed=true;db.orders=db.orders.filter(o=>!(o.auto&&String(o.itemId)===String(target.itemId)));}else{db.orders=db.orders.filter(o=>String(o.id)!==String(orderId));}save();toast('주문 요청을 완료 처리했어. 재고가 정상으로 회복된 뒤 다시 부족해지면 새 요청이 생성돼.')}
 });
 
 // Long-press drag sorting with live destination preview, shared by both lists.
